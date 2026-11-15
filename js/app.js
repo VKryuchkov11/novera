@@ -39,6 +39,65 @@ function distanceMeters(a,b) {
   const x=Math.sin(dLat/2)**2+Math.cos(rad(a[0]))*Math.cos(rad(b[0]))*Math.sin(dLon/2)**2;
   return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
+function getVisitMinutes(place) {
+  if (Number.isFinite(place.visitMinutes)) return place.visitMinutes;
+  const tags=place.tags||[];
+  if (tags.includes('museum') || place.category==='Музеи') return 30;
+  if (tags.includes('nature') || tags.includes('quiet')) return 15;
+  if (tags.includes('church') || /церк|храм|монастыр/i.test(place.name)) return 12;
+  if (tags.includes('memorial') || tags.includes('monument') || /памятник/i.test(place.name)) return 8;
+  if (tags.includes('architecture') || tags.includes('history')) return 7;
+  return 8;
+}
+function getRouteVisitMinutes(stops) {
+  return stops.reduce((sum,stop)=>sum+getVisitMinutes(stop),0);
+}
+function getPlaceInterest(place) {
+  const tags=place.tags||[];
+  let score=2;
+  if(tags.includes('hidden')) score+=1.2;
+  if(tags.includes('culture')||tags.includes('views')||tags.includes('nature')) score+=1;
+  if(tags.includes('museum')||tags.includes('literature')||tags.includes('memorial')) score+=0.8;
+  if(tags.includes('history')||tags.includes('architecture')) score+=0.4;
+  return Math.min(5,score);
+}
+function buildCandidate(pool,maxStops,variant) {
+  const shuffled=[...pool].sort(()=>Math.random()-.5);
+  const chosen=[shuffled[variant%shuffled.length]];
+  let remaining=shuffled.filter(place=>place.id!==chosen[0].id);
+  while(remaining.length&&chosen.length<maxStops) {
+    const last=chosen[chosen.length-1];
+    const categoryCounts={};
+    chosen.forEach(place=>{categoryCounts[place.category]=(categoryCounts[place.category]||0)+1;});
+    remaining.sort((a,b)=>{
+      const score=place=>{
+        const distance=distanceMeters(last.coordinates,place.coordinates)/1000;
+        const repeated=(categoryCounts[place.category]||0)*0.75;
+        return distance+repeated;
+      };
+      return score(a)-score(b);
+    });
+    const shortlist=remaining.slice(0,Math.min(3,remaining.length));
+    const next=shortlist[Math.floor(Math.random()*shortlist.length)];
+    chosen.push(next);
+    remaining=remaining.filter(place=>place.id!==next.id);
+  }
+  return chosen;
+}
+function scoreCandidate(candidate,routed,totalMinutes,limit) {
+  const categories=new Set(candidate.map(place=>place.category));
+  const diversity=25*Math.min(1,categories.size/Math.min(3,candidate.length));
+  const interest=25*(candidate.reduce((sum,place)=>sum+getPlaceInterest(place),0)/candidate.length/5);
+  const hiddenShare=candidate.filter(place=>(place.tags||[]).includes('hidden')).length/candidate.length;
+  const novelty=15*hiddenShare;
+  let straightDistance=0;
+  for(let i=1;i<candidate.length;i++) straightDistance+=distanceMeters(candidate[i-1].coordinates,candidate[i].coordinates);
+  const roadDistance=Math.max(1,routed.distanceKm*1000);
+  const compactness=20*Math.max(0,Math.min(1,straightDistance/roadDistance));
+  const targetMinutes=limit*0.8;
+  const timeFit=15*Math.max(0,1-Math.abs(totalMinutes-targetMinutes)/targetMinutes);
+  return diversity+interest+novelty+compactness+timeFit;
+}
 async function loadData() {
   const [routeResponse,placesResponse]=await Promise.all([
     fetch('./data/routes.json'), fetch('./data/places.json')
@@ -109,60 +168,46 @@ async function generateWalk(){
   }
 
   button.disabled=true;
-  button.textContent='Строим пешеходный маршрут…';
-  $('routeList').innerHTML='<p class="muted">Подбираем точки и рассчитываем путь по пешеходным дорожкам. Это может занять несколько секунд.</p>';
+  button.textContent='Сравниваем варианты прогулки…';
+  $('routeList').innerHTML='<p class="muted">Подбираем несколько последовательностей, рассчитываем пешеходные пути и сравниваем варианты. Это может занять некоторое время.</p>';
   try {
-    // Начальная последовательность — эвристика по расстоянию между точками.
-    // Фактическое расстояние и время затем берём только из пешеходного роутера.
     let best=null;
-    const tries=Math.min(2,pool.length);
+    const baseStops=limit<35?2:limit<65?3:limit<100?4:5;
+    const tries=Math.min(5,pool.length);
     for(let t=0;t<tries;t++){
-      const shuffled=[...pool].sort(()=>Math.random()-.5);
-      const chosen=[shuffled[0]];
-      let remaining=shuffled.slice(1);
-      while(remaining.length&&chosen.length<5){
-        const last=chosen[chosen.length-1];
-        remaining.sort((a,b)=>distanceMeters(last.coordinates,a.coordinates)-distanceMeters(last.coordinates,b.coordinates));
-        chosen.push(remaining.shift());
+      const maxStops=Math.max(2,Math.min(baseStops-(t%2),pool.length));
+      const candidate=buildCandidate(pool,maxStops,t);
+      if(candidate.length<2) continue;
+      const routed=await getPedestrianRoute(candidate);
+      const visitMinutes=getRouteVisitMinutes(candidate);
+      const bufferMinutes=5;
+      const totalMinutes=routed.travelMinutes+visitMinutes+bufferMinutes;
+      if(totalMinutes>limit) continue;
+      const score=scoreCandidate(candidate,routed,totalMinutes,limit);
+      if(!best||score>best.score) {
+        best={chosen:candidate,routed,duration:totalMinutes,visitMinutes,bufferMinutes,score};
       }
-      let candidate=[...chosen];
-      let routed=null;
-      while(candidate.length>=2){
-        routed=await getPedestrianRoute(candidate);
-        const visitMinutes=candidate.length*5;
-        const totalMinutes=routed.travelMinutes+visitMinutes;
-        if(totalMinutes<=limit) break;
-        candidate.pop();
-        routed=null;
-      }
-      if(routed){
-        const totalMinutes=routed.travelMinutes+candidate.length*5;
-        const score=totalMinutes;
-        if(!best||score>best.duration) best={chosen:candidate,routed,duration:totalMinutes};
-      }
-      // Достаточно первого подходящего варианта, чтобы не нагружать публичный сервер.
-      if(best) break;
     }
     if(!best){
-      $('routeList').innerHTML='<p class="muted">Не удалось построить пешеходный маршрут в заданное время. Попробуй увеличить лимит или выбрать другую тему.</p>';
+      $('routeList').innerHTML='<p class="muted">Не удалось собрать маршрут, который укладывается в выбранное время с учётом осмотра мест. Попробуй увеличить лимит или выбрать другую тему.</p>';
       $('routeCount').textContent='0 маршрутов';return;
     }
-    const stops=best.chosen.map(p=>({...p,radius:65,fact:p.fact}));
+    const stops=best.chosen.map(p=>({...p,visitMinutes:getVisitMinutes(p),radius:65,fact:p.fact}));
     const route={
       id:`generated-${Date.now()}`,
       title:generatedTitle(mood),
       subtitle:'Маршрут построен по пешеходной сети OpenStreetMap',
-      description:`Прогулка по ${best.chosen.length} точкам. Путь рассчитан пешеходным маршрутизатором; время включает примерно 5 минут на каждую остановку.`,
+      description:`В прогулке ${best.chosen.length} остановки. Время включает около ${best.routed.travelMinutes} минут ходьбы, ${best.visitMinutes} минут на осмотр и 5 минут запаса. Время посещения ориентировочное.`,
       duration:best.duration,distance:Number(best.routed.distanceKm.toFixed(1)),
       difficulty:best.routed.distanceKm>4?'Средний':'Лёгкий',
       category:moodLabel(mood),image:'assets/images/historic-center.svg',
       start:{name:stops[0].name,coordinates:stops[0].coordinates},
       finish:{name:stops[stops.length-1].name,coordinates:stops[stops.length-1].coordinates},
       stops,coordinates:stops.map(s=>s.coordinates),geometry:best.routed.geometry,
-      instructions:best.routed.instructions,generated:true,routing:'valhalla'
+      instructions:best.routed.instructions,generated:true,routing:'valhalla',
+      bufferMinutes:best.bufferMinutes,selectionScore:Number(best.score.toFixed(1))
     };
     visibleRoutes=[route,...routes.filter(r=>r.duration<=limit)];
-    // Показываем только что собранную прогулку сразу, даже если до этого был включён фильтр готовых маршрутов.
     applyRouteFilter('all');
     updateFeatured(route);
   } catch(error) {
@@ -201,9 +246,9 @@ async function openPreview(route) {
   setTimeout(async () => {
     const map=createMap('previewMap');
     try {
-      const routed=route.geometry?{geometry:route.geometry,distanceKm:route.distance,travelMinutes:Math.max(0,route.duration-route.stops.length*5),instructions:route.instructions||[]}:await getPedestrianRoute(route.stops);
+      const routed=route.geometry?{geometry:route.geometry,distanceKm:route.distance,travelMinutes:Math.max(0,route.duration-getRouteVisitMinutes(route.stops)-(route.bufferMinutes||0)),instructions:route.instructions||[]}:await getPedestrianRoute(route.stops);
       if(selectedRoute.id!==route.id) return;
-      selectedRoute={...selectedRoute,...routed,routing:'valhalla',distance:Number(routed.distanceKm.toFixed(1)),duration:routed.travelMinutes+route.stops.length*5};
+      selectedRoute={...selectedRoute,...routed,routing:'valhalla',distance:Number(routed.distanceKm.toFixed(1)),duration:routed.travelMinutes+getRouteVisitMinutes(route.stops)+(route.bufferMinutes||0)};
       drawRoute(map,selectedRoute);
       $('routingStatus').dataset.state='success';
       $('startWalk').disabled=false;
