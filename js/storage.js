@@ -1,5 +1,5 @@
 const THEME_KEY='wayer-theme';
-export function getTheme(){return localStorage.getItem(THEME_KEY)||'light';}
+export function getTheme(){return localStorage.getItem(THEME_KEY)||'dark';}
 export function setTheme(theme){localStorage.setItem(THEME_KEY,theme);}
 export function saveRating(routeId,rating){
   const ratings=JSON.parse(localStorage.getItem('wayer-ratings')||'{}');
