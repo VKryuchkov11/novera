@@ -162,7 +162,8 @@ async function generateWalk(){
       instructions:best.routed.instructions,generated:true,routing:'valhalla'
     };
     visibleRoutes=[route,...routes.filter(r=>r.duration<=limit)];
-    applyRouteFilter(activeFilter);
+    // Показываем только что собранную прогулку сразу, даже если до этого был включён фильтр готовых маршрутов.
+    applyRouteFilter('all');
     updateFeatured(route);
   } catch(error) {
     console.error('Pedestrian route generation failed:',error);
