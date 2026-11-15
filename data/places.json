@@ -1,7 +1,7 @@
 {
   "city": "Воронеж",
-  "count": 28,
-  "coordinate_note": "Для 20 исторических объектов координаты взяты из опубликованной карты малоизвестных мест, основанной на OpenStreetMap и Wikidata. Для общеизвестных парков и точек использованы координаты демонстрационных маршрутов проекта и справочных карт; перед публикацией их нужно перепроверить на местности.",
+  "count": 32,
+  "coordinate_note": "Координаты — ориентиры для построения маршрута, а не гарантия точного входа. Источники и статус проверки указаны у новых объектов; координаты и доступность всех точек необходимо перепроверять перед включением в реальные прогулки.",
   "places": [
     {
       "id": "shvedchenko-house",
@@ -444,6 +444,86 @@
       ],
       "description": "Небольшой сквер с памятником Петру I.",
       "fact": "Петровский сквер напоминает о роли Воронежа в создании регулярного российского флота при Петре I."
+    },
+    {
+      "id": "platonov-monument",
+      "name": "Памятник Андрею Платонову",
+      "category": "Культура",
+      "tags": [
+        "culture",
+        "literature",
+        "history",
+        "hidden"
+      ],
+      "coordinates": [
+        51.672142,
+        39.209117
+      ],
+      "description": "Памятник писателю Андрею Платонову в Платоновском сквере. Скульптура изображает писателя идущим по городу.",
+      "fact": "Памятник Андрею Платонову установлен в 1999 году к 100-летию со дня рождения писателя. Он находится в Платоновском сквере на проспекте Революции.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/pamyatniki-i-skulpturyi/pamyatnik-ap-platonovu.html",
+      "coordinateSource": "https://voronezh36.com/pamyatniki-literatoram-i-muzykantam-v-voronezhe/",
+      "coordinateStatus": "needs_on_site_check"
+    },
+    {
+      "id": "frontline-postman",
+      "name": "Памятник фронтовому почтальону",
+      "category": "История",
+      "tags": [
+        "history",
+        "culture",
+        "memorial",
+        "hidden"
+      ],
+      "coordinates": [
+        51.672148,
+        39.210134
+      ],
+      "description": "Бронзовая скульптура военного почтальона у Главпочтамта, рядом с площадью Победы.",
+      "fact": "Памятник открыт 7 мая 2015 года. Композиция включает фигуру почтальона и бронзовый конверт-треугольник — форму фронтовых писем.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/pamyatniki-i-skulpturyi/pamyatnik-frontovomu-pochtalonu.html",
+      "coordinateSource": "https://autotravel.ru/excite.php/107/1",
+      "coordinateStatus": "needs_on_site_check"
+    },
+    {
+      "id": "alyye-parusa",
+      "name": "Парк «Алые паруса»",
+      "category": "Природа",
+      "tags": [
+        "nature",
+        "quiet",
+        "views",
+        "waterfront"
+      ],
+      "coordinates": [
+        51.658351,
+        39.239631
+      ],
+      "description": "Сосновый парк на берегу Воронежского водохранилища рядом с Чернавским мостом. Подходит для неспешной прогулки среди сосен и отдыха у воды.",
+      "fact": "Парк расположен в Левобережном районе Воронежа. В нём есть прогулочные дорожки, места отдыха и оборудованный пляж; парк благоустроен как общественное пространство.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/park-alyie-parusa.html",
+      "coordinateSource": "https://archi.ru/projects/russia/11222/park-alye-parusa",
+      "coordinateStatus": "needs_on_site_check"
+    },
+    {
+      "id": "arsenal-museum",
+      "name": "Музей «Арсенал»",
+      "category": "Музеи",
+      "tags": [
+        "museum",
+        "history",
+        "culture",
+        "war-history"
+      ],
+      "coordinates": [
+        51.672919,
+        39.215756
+      ],
+      "description": "Музей на улице Степана Разина, посвящённый истории Воронежского края в годы Великой Отечественной войны.",
+      "fact": "Музей «Арсенал» входит в состав Воронежского областного краеведческого музея. Перед посещением стоит проверить расписание и условия входа: это музейная остановка, а не просто внешний осмотр здания.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/muzej-arsenal.html",
+      "coordinateSource": "https://xcourse.me/voronezh/sight/muzej-arsenal",
+      "coordinateStatus": "needs_on_site_check"
     }
   ]
 }
