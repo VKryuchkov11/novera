@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f5f4ef">
+  <meta name="theme-color" content="#0b0b0b">
   <meta name="description" content="Novera — городские прогулки и открытия в Воронеже.">
   <title>Novera — прогулки по Воронежу</title>
   <link rel="manifest" href="./manifest.json">
@@ -14,101 +14,106 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#" id="homeLink" aria-label="Novera — на главную">novera<span>.</span></a>
+    <a class="brand" href="#" id="homeLink">novera<span>.</span></a>
     <div class="top-actions">
-      <button class="icon-btn" id="themeToggle" aria-label="Переключить тему" title="Тема">◐</button>
-      <button class="icon-btn" id="installBtn" hidden aria-label="Установить приложение" title="Установить">↓</button>
+      <span class="city-label">ВОРОНЕЖ</span>
+      <button class="icon-btn" id="themeToggle" aria-label="Переключить тему" title="Тема">☼</button>
+      <button class="icon-btn install-btn" id="installBtn" hidden aria-label="Установить приложение">↓</button>
     </div>
   </header>
 
   <main class="shell">
     <section id="homeScreen" class="screen">
-      <div class="hero">
-        <p class="eyebrow">ТВОЙ ГОРОД. ТВОЙ МАРШРУТ.</p>
-        <h1>Воронеж<br>ближе, чем кажется.</h1>
-        <p class="lead">Открой новые места и посмотри на знакомый город иначе.</p>
+      <div class="home-heading">
+        <div><p class="eyebrow">ГОРОД — ЭТО ПРИКЛЮЧЕНИЕ</p><h1>Куда сегодня?</h1></div>
+        <div class="mode-switch" role="group" aria-label="Режим прогулок">
+          <button class="mode-btn active" id="modeAtmosphere">Атмосфера</button>
+          <button class="mode-btn" id="modeExcursions">Экскурсии</button>
+        </div>
       </div>
 
-      <section class="time-panel">
-        <div>
-          <p class="eyebrow">ГЕНЕРАТОР ПРОГУЛОК</p>
-          <h2>Куда отправимся сегодня?</h2>
-          <p class="muted">Собери новую прогулку из интересных мест Воронежа. Выбери время и настроение — Novera предложит маршрут.</p>
-        </div>
-        <div class="generator-controls">
-          <label for="timeInput">Есть времени</label>
-          <div class="time-row">
-            <input id="timeInput" type="number" min="20" max="360" step="10" value="90">
-            <span>минут</span>
+      <section class="featured-section">
+        <div class="section-kicker"><span class="eyebrow">ВЫБОР NOVERA</span><span class="live-dot">МАРШРУТ ДНЯ</span></div>
+        <article id="featuredRoute" class="featured-card">
+          <div class="featured-art" id="featuredArt"></div>
+          <div class="featured-shade"></div>
+          <div class="featured-copy">
+            <span class="featured-overline">ДЛЯ ТЕБЯ · 1–1,5 ЧАСА</span>
+            <h2 id="featuredTitle">Загружаем маршрут…</h2>
+            <p id="featuredDescription">Подбираем интересные места рядом.</p>
+            <div class="featured-meta" id="featuredMeta"></div>
           </div>
-          <label for="moodSelect">Что хочется увидеть?</label>
-          <select id="moodSelect">
-            <option value="surprise">🎲 Удиви меня</option>
-            <option value="hidden">🕵️ Неизвестные места</option>
-            <option value="architecture">🏛 Архитектура и история</option>
-            <option value="culture">📚 Литературные и культурные места</option>
-            <option value="nature">🌿 Парки и спокойные места</option>
-            <option value="views">🌅 Виды и набережные</option>
-          </select>
-          <label class="check-line"><input id="newOnly" type="checkbox" checked> Показывать ещё не открытые места</label>
-          <div class="generator-actions">
-            <button class="btn btn-primary" id="generateWalk">Сгенерировать прогулку <span aria-hidden="true">→</span></button>
-            <button class="btn btn-quiet" id="showAllRoutes">Готовые маршруты</button>
-          </div>
+          <span class="featured-arrow">↗</span>
+        </article>
+        <div class="featured-actions">
+          <button class="btn btn-primary" id="featuredStart">Посмотреть маршрут <span>→</span></button>
+          <button class="btn btn-refresh" id="refreshFeatured" aria-label="Обновить маршрут">↻</button>
         </div>
       </section>
-      <div class="discovery-note"><strong id="discoveryCount">28 мест для открытий</strong><span id="discoveryHint">Отмечай точки во время прогулок — Novera будет учитывать их в следующих подборках.</span></div>
 
-      <section class="route-section">
-        <div class="section-title">
-          <div><p class="eyebrow">ВЫБИРАЙ И ИССЛЕДУЙ</p><h2>Прогулки по городу</h2></div>
-          <span class="count" id="routeCount"></span>
+      <section class="generator-panel" id="generatorPanel">
+        <div class="generator-intro"><p class="eyebrow">СВОЙ МАРШРУТ</p><h2>Собери прогулку</h2><p class="muted">Выбери настроение и время — Novera подберёт места и построит путь по пешеходным дорожкам.</p></div>
+        <div class="generator-controls">
+          <label for="timeInput">Сколько есть времени?</label>
+          <div class="time-row"><input id="timeInput" type="number" min="20" max="360" step="10" value="90"><span>минут</span></div>
+          <label for="moodSelect">Настроение прогулки</label>
+          <select id="moodSelect">
+            <option value="surprise">Удиви меня</option><option value="hidden">Неизвестные места</option><option value="architecture">Архитектура и история</option><option value="culture">Литература и культура</option><option value="nature">Парки и спокойствие</option><option value="views">Виды и набережные</option>
+          </select>
+          <label class="check-line"><input id="newOnly" type="checkbox" checked> Только ещё не открытые места</label>
+          <button class="btn btn-primary" id="generateWalk">Сгенерировать прогулку <span>→</span></button>
+        </div>
+      </section>
+      <div class="discovery-note"><strong id="discoveryCount">28 мест для открытий</strong><span id="discoveryHint">Открывай новые места — Novera будет учитывать их в следующих подборках.</span></div>
+
+      <section class="route-section" id="allRoutes">
+        <div class="section-title"><div><p class="eyebrow">НЕ СИДИ НА МЕСТЕ</p><h2>Все маршруты</h2></div><span class="count" id="routeCount"></span></div>
+        <div class="filter-row" role="group" aria-label="Фильтр маршрутов">
+          <button class="filter-chip active" data-filter="all">Все</button><button class="filter-chip" data-filter="Виды">Виды</button><button class="filter-chip" data-filter="История">История</button><button class="filter-chip" data-filter="Культура">Культура</button><button class="filter-chip" data-filter="Природа">Природа</button>
         </div>
         <div id="routeList" class="route-grid"><p class="muted">Загружаем маршруты…</p></div>
       </section>
-      <p class="footnote">Пешеходные маршруты рассчитываются по данным OpenStreetMap. Данные карты могут быть неполными или устаревшими: сверяйся с обстановкой, соблюдай правила перехода дорог и не заходи на частную территорию или в закрытые здания.</p>
+      <p class="footnote">Пешеходные маршруты рассчитываются по данным OpenStreetMap. Данные карты могут быть неполными или устаревшими: сверяйся с обстановкой и соблюдай правила дорожного движения.</p>
     </section>
 
     <section id="previewScreen" class="screen" hidden>
-      <button class="back-link" id="backToHome">← Все прогулки</button>
-      <div id="previewDetails"></div>
-      <div id="previewMap" class="map" aria-label="Карта маршрута"></div>
-      <p id="routingStatus" class="routing-status" data-state="loading" role="status">Готовим пешеходный маршрут…</p>
-      <section id="routingInstructions" class="routing-instructions" hidden><h3>Как идти</h3><ol id="instructionList"></ol></section>
-      <div class="poi-panel"><h3>По пути</h3><ol id="poiList"></ol></div>
-      <button class="btn btn-primary btn-wide" id="startWalk">Начать прогулку</button>
+      <div class="detail-map-wrap">
+        <button class="map-back" id="backToHome" aria-label="Назад">←</button>
+        <div class="map-mode-switch"><span class="selected">Маршрут</span><span>Точки</span></div>
+        <div id="previewMap" class="map detail-map" aria-label="Карта маршрута"></div>
+      </div>
+      <div class="detail-sheet">
+        <div class="sheet-handle"></div>
+        <div id="previewDetails"></div>
+        <p id="routingStatus" class="routing-status" data-state="loading" role="status">Готовим пешеходный маршрут…</p>
+        <section id="routingInstructions" class="routing-instructions" hidden><h3>Как идти</h3><ol id="instructionList"></ol></section>
+        <div class="poi-panel"><h3>По пути</h3><ol id="poiList"></ol></div>
+      </div>
+      <div class="detail-cta"><button class="btn btn-primary btn-wide" id="startWalk" disabled>Иду <span>→</span></button></div>
     </section>
 
     <section id="activeScreen" class="screen" hidden>
       <button class="back-link" id="exitWalk">← К маршрутам</button>
       <div class="active-heading"><p class="eyebrow">ТВОЯ ПРОГУЛКА</p><h1 id="activeTitle"></h1></div>
       <div id="activeMap" class="map active-map" aria-label="Карта активной прогулки"></div>
-      <div class="progress-card">
-        <div class="progress-top"><strong>Прогресс</strong><strong id="progressPercent">0%</strong></div>
-        <div class="progress-track"><div id="progressFill"></div></div>
-        <p class="muted small" id="progressLabel">Посещено 0 из 0 точек</p>
-        <p class="muted small" id="gpsStatus">Ожидаем разрешение на геолокацию…</p>
-      </div>
-      <article class="fact-card" id="factCard" hidden>
-        <p class="eyebrow">ТОЧКА МАРШРУТА</p><h2 id="factTitle"></h2><p id="factText"></p>
-        <button class="btn btn-quiet" id="speakFact">Прослушать рассказ ◖</button>
-      </article>
+      <div class="progress-card"><div class="progress-top"><strong>Прогресс</strong><strong id="progressPercent">0%</strong></div><div class="progress-track"><div id="progressFill"></div></div><p class="muted small" id="progressLabel">Посещено 0 из 0 точек</p><p class="muted small" id="gpsStatus">Ожидаем разрешение на геолокацию…</p></div>
+      <article class="fact-card" id="factCard" hidden><p class="eyebrow">ТОЧКА МАРШРУТА</p><h2 id="factTitle"></h2><p id="factText"></p><button class="btn btn-quiet" id="speakFact">Прослушать рассказ ◖</button></article>
       <button class="btn btn-primary btn-wide" id="finishWalk">Завершить прогулку</button>
       <p class="footnote">Для автоматических подсказок держи приложение открытым. Геолокация работает только по HTTPS или на localhost.</p>
     </section>
 
     <section id="finishScreen" class="screen" hidden>
-      <div class="finish-card">
-        <p class="eyebrow">ПРОГУЛКА ЗАВЕРШЕНА</p>
-        <h1>Хорошая<br>работа!</h1>
-        <p id="finishSummary" class="lead"></p>
-        <div class="rating-block"><p>Как тебе маршрут?</p><div class="stars" id="ratingStars" role="group" aria-label="Оценка маршрута">
-          <button type="button" data-rating="1" aria-label="1 звезда">★</button><button type="button" data-rating="2" aria-label="2 звезды">★</button><button type="button" data-rating="3" aria-label="3 звезды">★</button><button type="button" data-rating="4" aria-label="4 звезды">★</button><button type="button" data-rating="5" aria-label="5 звёзд">★</button>
-        </div><p class="muted small" id="ratingSaved"></p></div>
-        <button class="btn btn-primary btn-wide" id="finishHome">На главную</button>
-      </div>
+      <div class="finish-card"><p class="eyebrow">ПРОГУЛКА ЗАВЕРШЕНА</p><h1>Город стал<br>чуть ближе.</h1><p id="finishSummary" class="lead"></p><div class="rating-block"><p>Как тебе маршрут?</p><div class="stars" id="ratingStars" role="group" aria-label="Оценка маршрута"><button type="button" data-rating="1">★</button><button type="button" data-rating="2">★</button><button type="button" data-rating="3">★</button><button type="button" data-rating="4">★</button><button type="button" data-rating="5">★</button></div><p class="muted small" id="ratingSaved"></p></div><button class="btn btn-primary btn-wide" id="finishHome">На главную</button></div>
     </section>
   </main>
+
+  <nav class="bottom-nav" id="bottomNav" aria-label="Основная навигация">
+    <button class="nav-item active" id="navHome"><span>⌂</span>Главная</button>
+    <button class="nav-item" id="navMap"><span>⌖</span>Карта</button>
+    <button class="nav-item" id="navWalk"><span>➤</span>Иду</button>
+    <button class="nav-item" id="navProfile"><span>◉</span>Профиль</button>
+  </nav>
+  <div class="profile-popover" id="profilePopover" hidden><button class="profile-close" id="profileClose">×</button><p class="eyebrow">ТВОИ ОТКРЫТИЯ</p><h2>Novera-профиль</h2><strong id="profileDiscovery">0 мест открыто</strong><p class="muted">Каждая прогулка — ещё одна история твоего города.</p></div>
   <footer class="footer">Novera <span>·</span> Открывай город по-новому</footer>
   <script type="module" src="./js/app.js"></script>
 </body>
