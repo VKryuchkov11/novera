@@ -29,7 +29,7 @@ async function loadData() {
 }
 function updateDiscoveryHint(){
   const found=getVisitedPlaces().length;
-  $('discoveryHint').textContent=`Открыто ${found} из ${places.length}. Отмечай точки во время прогулок — Wayer будет учитывать их в следующих подборках.`;
+  $('discoveryHint').textContent=`Открыто ${found} из ${places.length}. Отмечай точки во время прогулок — Novera будет учитывать их в следующих подборках.`;
 }
 function renderRoutes(items) {
   $('routeCount').textContent = `${items.length} ${items.length === 1 ? 'маршрут' : 'маршрутов'}`;
