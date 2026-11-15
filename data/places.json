@@ -1,7 +1,7 @@
 {
   "city": "Воронеж",
-  "count": 36,
-  "coordinate_note": "Координаты — ориентиры для построения маршрута, а не гарантия точного входа. Для новых точек указаны источники описания и координат; перед прогулкой требуется проверить подход и публичный доступ на месте. Музеи имеют график работы; жилые дома и религиозные объекты предполагают только уважительный внешний осмотр, если отдельно не указано иное.",
+  "count": 41,
+  "coordinate_note": "Координаты — ориентиры для построения маршрута, а не гарантия точного входа. У новых парков указаны источники описаний и координат; координаты и подходы необходимо перепроверять на местности.",
   "places": [
     {
       "id": "shvedchenko-house",
@@ -602,6 +602,108 @@
       "fact": "Памятник изображает Ивана Бунина сидящим на поваленном дереве; рядом с ним находится собака. Сквер и памятник входят в литературные маршруты по центру Воронежа.",
       "source": "https://visit-voronezh.ru/guide/chto-posetit/",
       "coordinateSource": "https://www.komandirovka.ru/sights/voronezh/pamyatnik-ia-buninu/",
+      "coordinateStatus": "reference_coordinate_needs_field_check"
+    },
+    {
+      "id": "tanais-park",
+      "name": "Парк «Танаис»",
+      "category": "Природа",
+      "tags": [
+        "nature",
+        "quiet",
+        "hidden"
+      ],
+      "coordinates": [
+        51.653056,
+        39.12825
+      ],
+      "visitMinutes": 25,
+      "description": "Большой зелёный парк с сосновыми насаждениями, прогулочными аллеями и местами для спокойного отдыха.",
+      "fact": "Парк «Танаис» основан в 1974 году. Первые сосны здесь высадили воронежские фронтовики. В парке обновляют аллеи и зоны отдыха.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/park-tanais.html",
+      "coordinateSource": "https://5verst.ru/tanais/course/",
+      "coordinateStatus": "reference_coordinate_needs_field_check"
+    },
+    {
+      "id": "dolphin-park",
+      "name": "Смарт-парк «Дельфин»",
+      "category": "Природа",
+      "tags": [
+        "nature",
+        "quiet",
+        "views",
+        "waterfront"
+      ],
+      "coordinates": [
+        51.686227,
+        39.254424
+      ],
+      "visitMinutes": 25,
+      "description": "Парк на левом берегу Воронежского водохранилища с прогулочной набережной и видами на воду.",
+      "fact": "В парке есть набережная, смотровая площадка на маяке и зоны отдыха. Летом работают водные активности, зимой — открытый каток.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/smart-park-delfin.html",
+      "coordinateSource": "https://xn--n1alf.xn--24-6kci4amthgkj1f.xn--80asehdb/",
+      "coordinateStatus": "reference_coordinate_needs_field_check"
+    },
+    {
+      "id": "aviastroiteley-park",
+      "name": "Парк Авиастроителей",
+      "category": "Природа",
+      "tags": [
+        "nature",
+        "quiet",
+        "culture"
+      ],
+      "coordinates": [
+        51.6404,
+        39.2423
+      ],
+      "visitMinutes": 20,
+      "description": "Зелёный парк в Левобережном районе с тенистыми аллеями; на его территории находится Воронежский зоопарк.",
+      "fact": "В парке находятся Воронежский зоопарк и необычный фонтан в виде ракеты. Здесь можно совместить прогулку по аллеям с посещением зоопарка.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/park-aviastroitelej.html",
+      "coordinateSource": "https://vrn.bebeshka.info/voronezh/voronezhskiy-zoopark-imeni-as-popova-64043/",
+      "coordinateStatus": "reference_coordinate_needs_field_check"
+    },
+    {
+      "id": "durov-park",
+      "name": "Парк имени Дурова",
+      "category": "Природа",
+      "tags": [
+        "nature",
+        "quiet",
+        "culture",
+        "history"
+      ],
+      "coordinates": [
+        51.655653,
+        39.183161
+      ],
+      "visitMinutes": 20,
+      "description": "Небольшой городской парк с аллеями, местами отдыха и литературным некрополем.",
+      "fact": "Парк создан в 1940 году. На его территории находится литературный некрополь, где сохранились могилы поэтов Алексея Кольцова и Ивана Никитина.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/park-im-durova.html",
+      "coordinateSource": "https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D1%80%D0%BA_%D0%B8%D0%BC._%D0%94%D1%83%D1%80%D0%BE%D0%B2%D0%B0%2C_%D0%92%D0%BE%D1%80%D0%BE%D0%BD%D0%B5%D0%B6_02.jpg",
+      "coordinateStatus": "reference_coordinate_needs_field_check"
+    },
+    {
+      "id": "victory-park",
+      "name": "Парк Победы",
+      "category": "Природа",
+      "tags": [
+        "nature",
+        "quiet",
+        "history"
+      ],
+      "coordinates": [
+        51.7077,
+        39.1604
+      ],
+      "visitMinutes": 25,
+      "description": "Большая зелёная территория в Коминтерновском районе с аллеями и памятными объектами.",
+      "fact": "Парк основан в 1975 году к 30-летию Победы в Великой Отечественной войне. На его территории расположен музей Воздушно-десантных войск.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/park-pobedyi.html",
+      "coordinateSource": "https://vrn.bebeshka.info/voronezh/park-pobedy-64048/",
       "coordinateStatus": "reference_coordinate_needs_field_check"
     }
   ]
