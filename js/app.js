@@ -63,22 +63,27 @@ function getPlaceInterest(place) {
 }
 function buildCandidate(pool,maxStops,variant) {
   const shuffled=[...pool].sort(()=>Math.random()-.5);
-  const chosen=[shuffled[variant%shuffled.length]];
+  const starts=[...shuffled].sort((a,b)=>{
+    const ax=a.coordinates[0], ay=a.coordinates[1], bx=b.coordinates[0], by=b.coordinates[1];
+    return (Math.sin((ax+variant)*12.9898)+Math.cos((ay+variant)*78.233))-(Math.sin((bx+variant)*12.9898)+Math.cos((by+variant)*78.233));
+  });
+  const chosen=[starts[variant%starts.length]];
   let remaining=shuffled.filter(place=>place.id!==chosen[0].id);
   while(remaining.length&&chosen.length<maxStops) {
     const last=chosen[chosen.length-1];
-    const categoryCounts={};
-    chosen.forEach(place=>{categoryCounts[place.category]=(categoryCounts[place.category]||0)+1;});
+    const counts={};
+    chosen.forEach(place=>(counts[place.category]=(counts[place.category]||0)+1));
     remaining.sort((a,b)=>{
-      const score=place=>{
-        const distance=distanceMeters(last.coordinates,place.coordinates)/1000;
-        const repeated=(categoryCounts[place.category]||0)*0.75;
-        return distance+repeated;
+      const rank=place=>{
+        const km=distanceMeters(last.coordinates,place.coordinates)/1000;
+        const repeated=(counts[place.category]||0)*0.9;
+        const parkBias=place.tags?.includes('nature')||place.tags?.includes('quiet')? -0.15:0;
+        return km+repeated+parkBias;
       };
-      return score(a)-score(b);
+      return rank(a)-rank(b);
     });
-    const shortlist=remaining.slice(0,Math.min(3,remaining.length));
-    const next=shortlist[Math.floor(Math.random()*shortlist.length)];
+    const shortlist=remaining.slice(0,Math.min(4,remaining.length));
+    const next=shortlist[(variant+chosen.length)%shortlist.length];
     chosen.push(next);
     remaining=remaining.filter(place=>place.id!==next.id);
   }
@@ -157,47 +162,53 @@ async function generateWalk(){
     if(mood==='surprise') return true;
     if(mood==='hidden') return p.tags.includes('hidden');
     if(mood==='architecture') return p.tags.includes('architecture')||p.tags.includes('history');
-    if(mood==='culture') return p.tags.includes('culture');
-    if(mood==='nature') return p.tags.includes('nature')||p.tags.includes('quiet');
-    if(mood==='views') return p.tags.includes('views');
+    if(mood==='culture') return p.tags.includes('culture')||p.tags.includes('literature');
+    if(mood==='nature') return p.tags.includes('nature')||p.tags.includes('quiet')||p.tags.includes('waterfront');
+    if(mood==='views') return p.tags.includes('views')||p.tags.includes('waterfront');
     return true;
   });
   if(pool.length<2){
-    $('routeList').textContent=onlyNew?'Похоже, ты уже открыл почти все места этой категории. Сними галочку или выбери другую тему.':'Пока недостаточно точек для такой прогулки.';
+    $('routeList').textContent=onlyNew?'В этой категории пока осталось меньше двух неоткрытых мест. Сними галочку или выбери другую тему.':'Пока недостаточно точек для такой прогулки.';
     $('routeCount').textContent='0 маршрутов';return;
   }
-
   button.disabled=true;
   button.textContent='Сравниваем варианты прогулки…';
-  $('routeList').innerHTML='<p class="muted">Подбираем несколько последовательностей, рассчитываем пешеходные пути и сравниваем варианты. Это может занять некоторое время.</p>';
+  $('routeList').innerHTML='<p class="muted">Подбираем разные варианты и рассчитываем пешеходные дорожки. Это может занять несколько секунд.</p>';
   try {
     let best=null;
-    const baseStops=limit<35?2:limit<65?3:limit<100?4:5;
-    const tries=Math.min(5,pool.length);
-    for(let t=0;t<tries;t++){
-      const maxStops=Math.max(2,Math.min(baseStops-(t%2),pool.length));
-      const candidate=buildCandidate(pool,maxStops,t);
-      if(candidate.length<2) continue;
-      const routed=await getPedestrianRoute(candidate);
-      const visitMinutes=getRouteVisitMinutes(candidate);
-      const bufferMinutes=5;
-      const totalMinutes=routed.travelMinutes+visitMinutes+bufferMinutes;
-      if(totalMinutes>limit) continue;
-      const score=scoreCandidate(candidate,routed,totalMinutes,limit);
-      if(!best||score>best.score) {
-        best={chosen:candidate,routed,duration:totalMinutes,visitMinutes,bufferMinutes,score};
+    const maxPossible=Math.min(pool.length,limit<45?2:limit<75?3:limit<120?4:5);
+    const stopCounts=[maxPossible,Math.max(2,maxPossible-1),Math.max(2,maxPossible-2)].filter((v,i,a)=>a.indexOf(v)===i);
+    const candidates=[];
+    for(let i=0;i<5;i++) {
+      const count=stopCounts[i%stopCounts.length];
+      const candidate=buildCandidate(pool,count,i);
+      if(candidate.length>=2)candidates.push(candidate);
+    }
+    for(const candidate of candidates) {
+      let current=[...candidate];
+      while(current.length>=2) {
+        const routed=await getPedestrianRoute(current);
+        const visitMinutes=getRouteVisitMinutes(current);
+        const bufferMinutes=5;
+        const totalMinutes=routed.travelMinutes+visitMinutes+bufferMinutes;
+        if(totalMinutes<=limit) {
+          const score=scoreCandidate(current,routed,totalMinutes,limit);
+          if(!best||score>best.score) best={chosen:current,routed,duration:totalMinutes,visitMinutes,bufferMinutes,score};
+          break;
+        }
+        if(current.length<=2)break;
+        current.pop();
       }
     }
     if(!best){
-      $('routeList').innerHTML='<p class="muted">Не удалось собрать маршрут, который укладывается в выбранное время с учётом осмотра мест. Попробуй увеличить лимит или выбрать другую тему.</p>';
+      $('routeList').innerHTML='<p class="muted">Не удалось собрать маршрут в выбранное время. Попробуй увеличить лимит или снять галочку «Только ещё не открытые места».</p>';
       $('routeCount').textContent='0 маршрутов';return;
     }
     const stops=best.chosen.map(p=>({...p,visitMinutes:getVisitMinutes(p),radius:65,fact:p.fact}));
     const route={
-      id:`generated-${Date.now()}`,
-      title:generatedTitle(mood),
+      id:`generated-${Date.now()}`,title:generatedTitle(mood),
       subtitle:'Маршрут построен по пешеходной сети OpenStreetMap',
-      description:`В прогулке ${best.chosen.length} остановки. Время включает около ${best.routed.travelMinutes} минут ходьбы, ${best.visitMinutes} минут на осмотр и 5 минут запаса. Время посещения ориентировочное.`,
+      description:`В прогулке ${best.chosen.length} остановки. Около ${best.routed.travelMinutes} минут ходьбы, ${best.visitMinutes} минут на осмотр и 5 минут запаса.`,
       duration:best.duration,distance:Number(best.routed.distanceKm.toFixed(1)),
       difficulty:best.routed.distanceKm>4?'Средний':'Лёгкий',
       category:moodLabel(mood),image:'assets/images/historic-center.svg',
