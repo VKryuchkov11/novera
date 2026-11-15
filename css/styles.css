@@ -7,7 +7,7 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 
 /* Novera dark map layer and route markers */
-.map .leaflet-tile-pane{filter:none!important}
+.map .leaflet-tile-pane{filter:grayscale(1) invert(.88) contrast(.88) brightness(.72)!important}
 .map .leaflet-control-zoom a{background:#171719!important;color:#f5f5f5!important;border-color:rgba(255,255,255,.14)!important}
 .map .leaflet-control-attribution{background:rgba(8,8,8,.78)!important;color:#aaa!important}
 .map .leaflet-control-attribution a{color:#ddd!important}
