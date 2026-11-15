@@ -1,7 +1,7 @@
 {
-  "name": "Wayer — прогулки по Воронежу",
-  "short_name": "Wayer",
-  "description": "Городские пешие прогулки по Воронежу без регистрации.",
+  "name": "Novera — прогулки по Воронежу",
+  "short_name": "Novera",
+  "description": "Городские пешие прогулки и открытия в Воронеже без регистрации.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
