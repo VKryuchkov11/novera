@@ -2,7 +2,8 @@ const VORONEZH_CENTER=[51.660781,39.200296];
 const instances={};
 export function createMap(elementId){
   if(instances[elementId]) instances[elementId].remove();
-  const map=L.map(elementId,{scrollWheelZoom:false}).setView(VORONEZH_CENTER,14);
+  const map=L.map(elementId,{scrollWheelZoom:false,attributionControl:false}).setView(VORONEZH_CENTER,14);
+  L.control.attribution({prefix:false}).addTo(map);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     maxZoom:19, attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
@@ -13,20 +14,20 @@ export function createMap(elementId){
 export function drawRoute(map,route){
   const points=[];
   if(route.geometry && route.geometry.length>1){
-    const line=L.polyline(route.geometry,{color:'#71845b',weight:5,opacity:.92}).addTo(map);
+    const line=L.polyline(route.geometry,{color:'#e52b38',weight:5,opacity:.96,lineCap:'round',lineJoin:'round'}).addTo(map);
     points.push(...route.geometry);
   }
   (route.stops||[]).forEach((stop,index)=>{
     points.push(stop.coordinates);
-    L.marker(stop.coordinates).addTo(map).bindPopup(`<strong>${index+1}. ${escapeHtml(stop.name)}</strong><br>${escapeHtml(stop.description||'')}`);
+    L.marker(stop.coordinates,{icon:L.divIcon({className:'novera-marker',html:'<span>'+(index+1)+'</span>',iconSize:[28,28],iconAnchor:[14,14]})}).addTo(map).bindPopup(`<strong>${index+1}. ${escapeHtml(stop.name)}</strong><br>${escapeHtml(stop.description||'')}`);
   });
   if(route.start?.coordinates){
     points.push(route.start.coordinates);
-    L.marker(route.start.coordinates).addTo(map).bindPopup(`<strong>Старт:</strong> ${escapeHtml(route.start.name)}`);
+    L.marker(route.start.coordinates,{icon:L.divIcon({className:'novera-marker novera-marker-start',html:'<span>↗</span>',iconSize:[30,30],iconAnchor:[15,15]})}).addTo(map).bindPopup(`<strong>Старт:</strong> ${escapeHtml(route.start.name)}`);
   }
   if(route.finish?.coordinates){
     points.push(route.finish.coordinates);
-    L.marker(route.finish.coordinates).addTo(map).bindPopup(`<strong>Финиш:</strong> ${escapeHtml(route.finish.name)}`);
+    L.marker(route.finish.coordinates,{icon:L.divIcon({className:'novera-marker novera-marker-finish',html:'<span>✓</span>',iconSize:[30,30],iconAnchor:[15,15]})}).addTo(map).bindPopup(`<strong>Финиш:</strong> ${escapeHtml(route.finish.name)}`);
   }
   if(points.length) map.fitBounds(L.latLngBounds(points),{padding:[28,28]});
 }
