@@ -1,4 +1,4 @@
-const CACHE_NAME='novera-v4';
+const CACHE_NAME='novera-v5';
 const APP_SHELL=['./','./index.html','./manifest.json','./css/styles.css','./js/app.js','./js/map.js','./js/routing.js','./js/storage.js','./data/routes.json','./data/places.json','./assets/icons/icon.svg','./assets/images/historic-center.svg','./assets/images/admiralty.svg','./assets/images/literary.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE_NAME).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
