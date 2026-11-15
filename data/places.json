@@ -1,7 +1,7 @@
 {
   "city": "Воронеж",
-  "count": 34,
-  "coordinate_note": "Координаты — ориентиры для построения маршрута. Для новых точек указаны источники координат и фактологические источники; они не гарантируют точность входа или доступность. Перед включением в реальные прогулки требуется проверка подхода и публичного доступа на месте. Исторические здания, жилые дома и религиозные объекты предполагают только уважительный внешний осмотр, если отдельно не указано иное.",
+  "count": 36,
+  "coordinate_note": "Координаты — ориентиры для построения маршрута, а не гарантия точного входа. Для новых точек указаны источники описания и координат; перед прогулкой требуется проверить подход и публичный доступ на месте. Музеи имеют график работы; жилые дома и религиозные объекты предполагают только уважительный внешний осмотр, если отдельно не указано иное.",
   "places": [
     {
       "id": "shvedchenko-house",
@@ -456,13 +456,13 @@
         "hidden"
       ],
       "coordinates": [
-        51.672142,
-        39.209117
+        51.672149,
+        39.209379
       ],
       "description": "Памятник писателю Андрею Платонову в Платоновском сквере. Скульптура изображает писателя идущим по городу.",
       "fact": "Памятник Андрею Платонову установлен в 1999 году к 100-летию со дня рождения писателя. Он находится в Платоновском сквере на проспекте Революции.",
       "source": "https://visit-voronezh.ru/guide/chto-posetit/pamyatniki-i-skulpturyi/pamyatnik-ap-platonovu.html",
-      "coordinateSource": "https://voronezh36.com/pamyatniki-literatoram-i-muzykantam-v-voronezhe/",
+      "coordinateSource": "https://www.komandirovka.ru/sights/voronezh/pamyatnik-ap-platonovu/",
       "coordinateStatus": "needs_on_site_check"
     },
     {
@@ -496,13 +496,13 @@
         "waterfront"
       ],
       "coordinates": [
-        51.658351,
-        39.239631
+        51.657008,
+        39.240731
       ],
       "description": "Сосновый парк на берегу Воронежского водохранилища рядом с Чернавским мостом. Подходит для неспешной прогулки среди сосен и отдыха у воды.",
       "fact": "Парк расположен в Левобережном районе Воронежа. В нём есть прогулочные дорожки, места отдыха и оборудованный пляж; парк благоустроен как общественное пространство.",
       "source": "https://visit-voronezh.ru/guide/chto-posetit/turisticheskie-obektyi/park-alyie-parusa.html",
-      "coordinateSource": "https://archi.ru/projects/russia/11222/park-alye-parusa",
+      "coordinateSource": "https://rvland.ru/explore/russia/voronezhskaya-oblast/",
       "coordinateStatus": "needs_on_site_check"
     },
     {
@@ -516,13 +516,13 @@
         "war-history"
       ],
       "coordinates": [
-        51.672962,
-        39.215736
+        51.673083,
+        39.2159
       ],
       "description": "Музейная экспозиция о Великой Отечественной войне в историческом здании бывшей суконной фабрики купца Гарденина на улице Степана Разина.",
       "fact": "Здание Арсенала — объект культурного наследия федерального значения. В нём размещён отдел Воронежского областного краеведческого музея, посвящённый Великой Отечественной войне. Перед визитом проверь расписание: понедельник — выходной.",
       "source": "https://museum-vrn.ru/muzej/arsenal/adres_vremya_raboty_ar/",
-      "coordinateSource": "https://xn--n1alf.xn--24-6kci4amthgkj1f.xn--80asehdb/",
+      "coordinateSource": "https://autotravel.ru/excite.php/107/1",
       "coordinateStatus": "reference_coordinate_needs_field_check"
     },
     {
@@ -542,7 +542,7 @@
       "description": "Мемориальный дом-музей артиста и дрессировщика Анатолия Леонидовича Дурова. Музей находится в исторической усадьбе на улице Дурова.",
       "fact": "Усадьба — объект культурного наследия федерального значения начала XX века. Дом связан с жизнью и работой А. Л. Дурова. Перед посещением проверь расписание музея.",
       "source": "https://museum-vrn.ru/contacts/",
-      "coordinateSource": "https://www.komandirovka.ru/sights/voronezh/dom-muzey-al-durova/",
+      "coordinateSource": "https://www.runcity.org/ru/events/voronezh2013/routes/history/",
       "coordinateStatus": "reference_coordinate_needs_field_check"
     },
     {
@@ -564,6 +564,44 @@
       "fact": "Мандельштам жил здесь с женой в 1936–1937 годах во время ссылки. Воронежские годы стали временем создания его «Воронежских тетрадей». Это жилой дом: осмотр только с общедоступной улицы, без попыток попасть внутрь.",
       "source": "https://vestivrn.ru/news/2021/08/31/v-voronezhe-v-chislo-pamyatnikov-istorii-vklyuchili-dom-v-kotorom-zhil-mandelshtam/",
       "coordinateSource": "https://ru.wikipedia.org/wiki/Жилой_дом_по_улице_Фридриха_Энгельса,_13_(Воронеж)",
+      "coordinateStatus": "reference_coordinate_needs_field_check"
+    },
+    {
+      "id": "mandelstam-monument",
+      "name": "Памятник Осипу Мандельштаму",
+      "category": "Литература",
+      "tags": [
+        "culture",
+        "literature",
+        "history"
+      ],
+      "coordinates": [
+        51.673889,
+        39.2075
+      ],
+      "description": "Памятник поэту у входа в парк «Орлёнок», напротив дома на улице Фридриха Энгельса, где Мандельштам жил во время воронежской ссылки.",
+      "fact": "Памятник открыт 2 сентября 2008 года. Его установили у входа в «Орлёнок» — рядом с домом, где поэт жил в 1936 году. Дом и памятник удобно объединить в одну литературную прогулку.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/pamyatniki-i-skulpturyi/pamyatnik-oe-mandelshtamu.html",
+      "coordinateSource": "https://ru.wikipedia.org/wiki/Памятник_О._Э._Мандельштаму_(Воронеж)",
+      "coordinateStatus": "reference_coordinate_needs_field_check"
+    },
+    {
+      "id": "bunин-monument",
+      "name": "Памятник Ивану Бунину",
+      "category": "Литература",
+      "tags": [
+        "culture",
+        "literature",
+        "history"
+      ],
+      "coordinates": [
+        51.659146,
+        39.202153
+      ],
+      "description": "Бронзовая скульптура писателя в Бунинском сквере на пересечении улиц Плехановской и Орджоникидзе.",
+      "fact": "Памятник изображает Ивана Бунина сидящим на поваленном дереве; рядом с ним находится собака. Сквер и памятник входят в литературные маршруты по центру Воронежа.",
+      "source": "https://visit-voronezh.ru/guide/chto-posetit/",
+      "coordinateSource": "https://www.komandirovka.ru/sights/voronezh/pamyatnik-ia-buninu/",
       "coordinateStatus": "reference_coordinate_needs_field_check"
     }
   ]
