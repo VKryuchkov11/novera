@@ -6,10 +6,9 @@ export function createMap(elementId){
   const map=L.map(elementId,{scrollWheelZoom:false,attributionControl:false,zoomControl:false}).setView(VORONEZH_CENTER,14);
   L.control.zoom({position:'bottomright'}).addTo(map);
   L.control.attribution({prefix:false,position:'bottomleft'}).addTo(map);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
-    subdomains:'abcd',
-    maxZoom:20,
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
   instances[elementId]=map;
   setTimeout(()=>map.invalidateSize(),100);
