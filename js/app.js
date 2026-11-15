@@ -4,11 +4,34 @@ import { getPedestrianRoute } from './routing.js';
 
 const $ = (id) => document.getElementById(id);
 const screenIds = ['homeScreen','previewScreen','activeScreen','finishScreen'];
-let routes = [], places = [], selectedRoute = null, activeTracker = null, visited = new Set(), currentFact = null;
+let routes = [], places = [], selectedRoute = null, activeTracker = null, visited = new Set(), currentFact = null, visibleRoutes = [], featuredIndex = 0, activeFilter = 'all';
 
 function showScreen(id) {
   screenIds.forEach(screenId => { $(screenId).hidden = screenId !== id; });
+  $('bottomNav').hidden = id === 'previewScreen' || id === 'finishScreen';
+  setNavActive(id === 'activeScreen' ? 'navWalk' : 'navHome');
   window.scrollTo({top:0,behavior:'smooth'});
+}
+function setNavActive(id) {
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.toggle('active', item.id === id));
+}
+function updateFeatured(route) {
+  if (!route) return;
+  $('featuredTitle').textContent = route.title;
+  $('featuredDescription').textContent = route.description;
+  $('featuredArt').style.backgroundImage = 'url("' + (route.image || 'assets/images/historic-center.svg') + '")';
+  $('featuredMeta').replaceChildren();
+  [route.category, '◷ ' + route.duration + ' мин', '↗ ' + route.distance + ' км'].forEach((value,index) => {
+    const pill=document.createElement('span'); pill.className='meta-pill'+(index===0?' station':''); pill.textContent=value; $('featuredMeta').append(pill);
+  });
+  $('featuredRoute').onclick = () => openPreview(route);
+  $('featuredStart').onclick = () => openPreview(route);
+}
+function applyRouteFilter(filter) {
+  activeFilter=filter;
+  document.querySelectorAll('.filter-chip').forEach(chip=>chip.classList.toggle('active',chip.dataset.filter===filter));
+  const filtered=filter==='all'?visibleRoutes:visibleRoutes.filter(route=>route.category===filter || (filter==='Природа' && /природ|пар|вид/i.test(route.category)));
+  renderRoutes(filtered);
 }
 function distanceMeters(a,b) {
   const rad=x=>x*Math.PI/180, R=6371000;
@@ -25,7 +48,9 @@ async function loadData() {
   routes=routeData.routes; places=placeData.places;
   $('discoveryCount').textContent=`${places.length} мест для открытий`;
   updateDiscoveryHint();
-  renderRoutes(routes);
+  visibleRoutes=[...routes];
+  renderRoutes(visibleRoutes);
+  featuredIndex=0; updateFeatured(routes[0]);
 }
 function updateDiscoveryHint(){
   const found=getVisitedPlaces().length;
@@ -136,7 +161,9 @@ async function generateWalk(){
       stops,coordinates:stops.map(s=>s.coordinates),geometry:best.routed.geometry,
       instructions:best.routed.instructions,generated:true,routing:'valhalla'
     };
-    renderRoutes([route,...routes.filter(r=>r.duration<=limit).slice(0,2)]);
+    visibleRoutes=[route,...routes.filter(r=>r.duration<=limit)];
+    applyRouteFilter(activeFilter);
+    updateFeatured(route);
   } catch(error) {
     console.error('Pedestrian route generation failed:',error);
     $('routeList').innerHTML=`<p class="muted">${escapeHtmlText(error.message)} Готовые маршруты можно открыть, но их линия тоже будет показана только после успешного расчёта.</p>`;
@@ -246,7 +273,7 @@ function finishWalk() {
 function applyTheme(theme) {
   document.documentElement.dataset.theme=theme;
   $('themeToggle').textContent=theme==='dark'?'☼':'◐';
-  document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#191c18':'#f5f4ef';
+  document.querySelector('meta[name="theme-color"]').content=theme==='dark'?'#0b0b0b':'#f4f4f2';
   setTheme(theme);
 }
 function speakFact() {
@@ -256,13 +283,34 @@ function speakFact() {
   utterance.lang='ru-RU'; window.speechSynthesis.speak(utterance);
 }
 $('generateWalk').addEventListener('click',generateWalk);
-$('showAllRoutes').addEventListener('click',()=>renderRoutes(routes));
+document.querySelectorAll('.filter-chip').forEach(chip=>chip.addEventListener('click',()=>applyRouteFilter(chip.dataset.filter)));
+$('refreshFeatured').addEventListener('click',()=>{
+  if(!routes.length)return;
+  featuredIndex=(featuredIndex+1)%routes.length;
+  updateFeatured(routes[featuredIndex]);
+});
+$('modeAtmosphere').addEventListener('click',()=>{
+  $('modeAtmosphere').classList.add('active');$('modeExcursions').classList.remove('active');
+  $('moodSelect').value='surprise';
+});
+$('modeExcursions').addEventListener('click',()=>{
+  $('modeExcursions').classList.add('active');$('modeAtmosphere').classList.remove('active');
+  $('moodSelect').value='architecture';
+});
+$('navHome').addEventListener('click',()=>{if(activeTracker){activeTracker.stop();activeTracker=null;}removeMap('activeMap');removeMap('previewMap');showScreen('homeScreen');});
+$('navMap').addEventListener('click',()=>{showScreen('homeScreen');$('allRoutes').scrollIntoView({behavior:'smooth'});});
+$('navWalk').addEventListener('click',()=>{if(selectedRoute && selectedRoute.geometry)startWalk();else $('generatorPanel').scrollIntoView({behavior:'smooth'});});
+$('navProfile').addEventListener('click',()=>{
+  $('profileDiscovery').textContent=getVisitedPlaces().length+' мест открыто';
+  $('profilePopover').hidden=false;
+});
+$('profileClose').addEventListener('click',()=>$('profilePopover').hidden=true);
 $('backToHome').addEventListener('click',()=>{removeMap('previewMap');showScreen('homeScreen');});
 $('homeLink').addEventListener('click',e=>{e.preventDefault();if(activeTracker){activeTracker.stop();activeTracker=null;}removeMap('previewMap');removeMap('activeMap');showScreen('homeScreen');});
 $('startWalk').addEventListener('click',startWalk);
 $('finishWalk').addEventListener('click',finishWalk);
 $('exitWalk').addEventListener('click',()=>{if(activeTracker){activeTracker.stop();activeTracker=null;}removeMap('activeMap');showScreen('homeScreen');});
-$('finishHome').addEventListener('click',()=>{showScreen('homeScreen');renderRoutes(routes);});
+$('finishHome').addEventListener('click',()=>{showScreen('homeScreen');visibleRoutes=[...routes];applyRouteFilter('all');});
 $('themeToggle').addEventListener('click',()=>applyTheme(getTheme()==='dark'?'light':'dark'));
 $('speakFact').addEventListener('click',speakFact);
 document.querySelectorAll('[data-rating]').forEach(button=>button.addEventListener('click',()=>{
