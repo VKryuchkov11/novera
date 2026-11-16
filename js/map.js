@@ -2,6 +2,11 @@ const VORONEZH_CENTER=[51.660781,39.200296];
 const instances={};
 
 export function createMap(elementId){
+  if(!window.L){
+    const element=document.getElementById(elementId);
+    if(element) element.dataset.mapUnavailable='true';
+    return null;
+  }
   if(instances[elementId]) instances[elementId].remove();
   const map=L.map(elementId,{scrollWheelZoom:false,attributionControl:false,zoomControl:false}).setView(VORONEZH_CENTER,14);
   L.control.zoom({position:'bottomright'}).addTo(map);
@@ -26,6 +31,7 @@ function markerIcon(type,label){
 }
 
 export function drawRoute(map,route){
+  if(!map || !window.L) return;
   const bounds=[];
   const geometry=Array.isArray(route.geometry)?route.geometry:[];
   if(geometry.length>1){
@@ -65,20 +71,28 @@ function escapeHtml(value){
   return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-export function startLocationTracking(map,onUpdate){
-  const userMarker=L.circleMarker(VORONEZH_CENTER,{radius:8,color:'#fff',weight:3,fillColor:'#438bd0',fillOpacity:1}).addTo(map);
-  const path=L.polyline([],{color:'#438bd0',weight:4}).addTo(map);
+export function startLocationTracking(map,onUpdate,onError=()=>{}){
+  if(!navigator.geolocation){
+    onError(new Error('Этот браузер не поддерживает геолокацию.'));
+    return {stop(){}};
+  }
+  const userMarker=map&&window.L?L.circleMarker(VORONEZH_CENTER,{radius:8,color:'#fff',weight:3,fillColor:'#438bd0',fillOpacity:1}).addTo(map):null;
+  const path=map&&window.L?L.polyline([],{color:'#438bd0',weight:4}).addTo(map):null;
   const points=[]; let accuracyCircle=null; let firstFix=true;
   const watchId=navigator.geolocation.watchPosition(position=>{
     const coordinates=[position.coords.latitude,position.coords.longitude];
-    points.push(coordinates); path.setLatLngs(points); userMarker.setLatLng(coordinates);
-    if(accuracyCircle) accuracyCircle.remove();
-    accuracyCircle=L.circle(coordinates,{radius:position.coords.accuracy,color:'#438bd0',opacity:.25,fillOpacity:.04}).addTo(map);
-    if(firstFix){map.setView(coordinates,16);firstFix=false;}
+    points.push(coordinates);
+    if(path) path.setLatLngs(points);
+    if(userMarker) userMarker.setLatLng(coordinates);
+    if(map&&window.L){
+      if(accuracyCircle) accuracyCircle.remove();
+      accuracyCircle=L.circle(coordinates,{radius:position.coords.accuracy,color:'#438bd0',opacity:.25,fillOpacity:.04}).addTo(map);
+      if(firstFix){map.setView(coordinates,16);firstFix=false;}
+    }
     onUpdate({coordinates,accuracy:position.coords.accuracy});
   },error=>{
-    const messages={1:'Доступ к геолокации запрещён. Разреши его в настройках браузера.',2:'Не удалось определить местоположение.',3:'Истекло время ожидания GPS.'};
-    const status=document.getElementById('gpsStatus'); if(status) status.textContent=messages[error.code]||error.message;
+    const messages={1:'Доступ к геолокации запрещён. Можно продолжить и отмечать точки вручную.',2:'Не удалось определить местоположение. Можно отмечать точки вручную.',3:'GPS не ответил вовремя. Можно отмечать точки вручную.'};
+    onError(new Error(messages[error.code]||'Геолокация недоступна. Можно отмечать точки вручную.'));
   },{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
   return {stop(){navigator.geolocation.clearWatch(watchId);}};
 }
