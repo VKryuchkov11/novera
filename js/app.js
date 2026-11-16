@@ -417,4 +417,4 @@ if('serviceWorker' in navigator && (location.protocol==='https:' || location.hos
   window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('SW registration failed',err)));
 }
 applyTheme(getTheme());
-loadData().catch(err=>{console.error(err);$('routeList').textContent='Не удалось загрузить данные. Запусти проект через локальный сервер.';});
+loadData().catch(err=>{console.error(err);$('routeList').textContent='Не удалось загрузить сохранённые данные. Подключись к интернету и обнови страницу: возможно, приложение ещё не успело сохранить их для офлайн-режима.';});
