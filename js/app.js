@@ -171,6 +171,11 @@ async function generateWalk(){
     $('routeList').textContent=onlyNew?'В этой категории пока осталось меньше двух неоткрытых мест. Сними галочку или выбери другую тему.':'Пока недостаточно точек для такой прогулки.';
     $('routeCount').textContent='0 маршрутов';return;
   }
+  if(!navigator.onLine){
+    $('routeList').innerHTML='<p class="muted">Для создания нового маршрута нужен интернет: Novera запрашивает пешеходные дорожки у сервиса маршрутизации. Уже сохранённые маршруты доступны офлайн.</p>';
+    $('routeCount').textContent='Нет подключения';
+    return;
+  }
   button.disabled=true;
   button.textContent='Сравниваем варианты прогулки…';
   $('routeList').innerHTML='<p class="muted">Подбираем разные варианты и рассчитываем пешеходные дорожки. Это может занять несколько секунд.</p>';
@@ -223,7 +228,8 @@ async function generateWalk(){
     updateFeatured(route);
   } catch(error) {
     console.error('Pedestrian route generation failed:',error);
-    $('routeList').innerHTML=`<p class="muted">${escapeHtmlText(error.message)} Готовые маршруты можно открыть, но их линия тоже будет показана только после успешного расчёта.</p>`;
+    const offlineMessage=!navigator.onLine?' Нет подключения к интернету — попробуй позже.':'';
+    $('routeList').innerHTML=`<p class="muted">${escapeHtmlText(error.message)} Готовые маршруты можно открыть и пройти вручную.${offlineMessage}</p>`;
     $('routeCount').textContent='Маршрут не построен';
   } finally {
     button.disabled=false;
@@ -274,36 +280,64 @@ async function openPreview(route) {
       console.error('Route preview failed:',error);
       drawRoute(map,{...route,geometry:null});
       $('routingStatus').dataset.state='error';
-      $('startWalk').disabled=true;
-      $('routingStatus').textContent=`Не удалось рассчитать пешеходный путь: ${error.message} На карте показаны только точки остановок — линии маршрута нет. Попробуй обновить предпросмотр позже.`;
+      $('startWalk').disabled=false;
+      $('routingStatus').textContent=`Не удалось рассчитать пешеходный путь: ${error.message} На карте показаны только точки остановок. Ты всё равно можешь начать прогулку и отмечать места вручную.`;
     }
   },100);
 }
 
 function startWalk() {
-  if (!selectedRoute?.geometry?.length) { alert('Сначала дождись расчёта пешеходного маршрута.'); return; }
-  if (!navigator.geolocation) { alert('Этот браузер не поддерживает геолокацию.'); return; }
+  if (!selectedRoute?.stops?.length) { alert('В этом маршруте пока нет точек для посещения.'); return; }
   visited = new Set(); currentFact = null; $('factCard').hidden = true;
   $('progressFill').style.width='0%'; $('progressPercent').textContent='0%';
   $('progressLabel').textContent=`Посещено 0 из ${selectedRoute.stops.length} точек`;
-  $('gpsStatus').textContent='Запрашиваем разрешение на геолокацию…';
+  $('gpsStatus').textContent=navigator.geolocation?'Запрашиваем разрешение на геолокацию…':'GPS недоступен. Отмечай точки вручную.';
   $('activeTitle').textContent=selectedRoute.title;
+  renderManualStops();
   showScreen('activeScreen');
   setTimeout(() => {
-    const map=createMap('activeMap');
-    drawRoute(map,selectedRoute);
-    activeTracker=startLocationTracking(map, position => onPosition(position));
+    let map=null;
+    try { map=createMap('activeMap'); drawRoute(map,selectedRoute); }
+    catch(error){ console.warn('Map unavailable:',error); }
+    if(navigator.geolocation){
+      activeTracker=startLocationTracking(map,position=>onPosition(position),error=>{
+        $('gpsStatus').textContent=error.message;
+      });
+    }
+    if(!navigator.geolocation) $('gpsStatus').textContent='GPS не поддерживается. Отмечай точки вручную.';
+    if(!map) $('gpsStatus').textContent+=' Карта недоступна без загрузки картографических файлов.';
   },100);
+}
+function renderManualStops(){
+  const list=$('manualStopList');
+  if(!list) return;
+  list.replaceChildren(...selectedRoute.stops.map((stop,index)=>{
+    const item=document.createElement('li');
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='manual-stop-button';
+    button.textContent=`${index+1}. ${stop.name} — отметить посещённым`;
+    button.disabled=visited.has(stop.id);
+    if(button.disabled) button.textContent=`${index+1}. ${stop.name} — посещено`;
+    button.addEventListener('click',()=>markStopVisited(stop));
+    item.append(button);
+    return item;
+  }));
+}
+function markStopVisited(stop){
+  if(visited.has(stop.id)) return;
+  visited.add(stop.id);
+  showFact(stop);
+  updateProgress();
+  renderManualStops();
+  if(places.some(place=>place.id===stop.id)){saveVisitedPlace(stop.id);updateDiscoveryHint();}
 }
 function onPosition(position) {
   $('gpsStatus').textContent=`GPS: точность около ${Math.round(position.accuracy)} м`;
   for (const stop of selectedRoute.stops) {
     if (visited.has(stop.id)) continue;
     const distance=distanceMeters(position.coordinates,stop.coordinates);
-    if (position.accuracy <= Math.max(60,stop.radius) && distance <= stop.radius) {
-      visited.add(stop.id); showFact(stop); updateProgress();
-      if(places.some(p=>p.id===stop.id)){saveVisitedPlace(stop.id);updateDiscoveryHint();}
-    }
+    if (position.accuracy <= Math.max(60,stop.radius||65) && distance <= (stop.radius||65)) markStopVisited(stop);
   }
 }
 function showFact(stop) {
@@ -356,7 +390,7 @@ $('modeExcursions').addEventListener('click',()=>{
 });
 $('navHome').addEventListener('click',()=>{if(activeTracker){activeTracker.stop();activeTracker=null;}removeMap('activeMap');removeMap('previewMap');showScreen('homeScreen');});
 $('navMap').addEventListener('click',()=>{showScreen('homeScreen');$('allRoutes').scrollIntoView({behavior:'smooth'});});
-$('navWalk').addEventListener('click',()=>{if(selectedRoute && selectedRoute.geometry)startWalk();else $('generatorPanel').scrollIntoView({behavior:'smooth'});});
+$('navWalk').addEventListener('click',()=>{if(selectedRoute?.stops?.length)startWalk();else $('generatorPanel').scrollIntoView({behavior:'smooth'});});
 $('navProfile').addEventListener('click',()=>{
   $('profileDiscovery').textContent=getVisitedPlaces().length+' мест открыто';
   $('profilePopover').hidden=false;
