@@ -44,3 +44,12 @@ button{ -webkit-tap-highlight-color:transparent }
   .route-content h3{font-size:14px}
   .route-meta{flex-wrap:wrap}
 }
+
+.manual-checklist{margin:15px 0;padding:18px;background:var(--surface);border:1px solid var(--line);border-radius:16px}
+.manual-checklist h2{font-size:17px;margin:0 0 6px}
+.manual-checklist ol{padding-left:22px;margin:12px 0 0}
+.manual-checklist li{padding:5px 0;color:var(--muted)}
+.manual-stop-button{width:100%;min-height:46px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--text);font-size:12px;font-weight:700}
+.manual-stop-button:disabled{opacity:.55;text-decoration:line-through}
+.map[data-map-unavailable="true"]{display:flex;align-items:center;justify-content:center;padding:24px;color:var(--muted);font-size:13px;text-align:center}
+.map[data-map-unavailable="true"]::after{content:"Карта недоступна без интернета. Список точек и ручное прохождение маршрута остаются доступны."}
